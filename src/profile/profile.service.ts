@@ -22,7 +22,7 @@ export class ProfileService {
     }
 
     async create(userId: string, dto: CreateProfileDto) {
-        const exists = await this.profileModel.findOne({ userId });
+        const exists = await this.profileModel.findOne({ userId: new Types.ObjectId(userId) });
         if (exists) throw new ConflictException('Profile already exists, use update');
         return this.profileModel.create({
             userId: new Types.ObjectId(userId),
@@ -31,14 +31,14 @@ export class ProfileService {
     }
 
     async findByUserId(userId: string) {
-        const profile = await this.profileModel.findOne({ userId });
+        const profile = await this.profileModel.findOne({ userId: new Types.ObjectId(userId) });
         if (!profile) throw new NotFoundException('Profile not found');
         return profile;
     }
 
     async update(userId: string, dto: UpdateProfileDto) {
         const profile = await this.profileModel.findOneAndUpdate(
-            { userId },
+            { userId: new Types.ObjectId(userId) },
             { $set: this.enrich(dto) },
             { new: true, upsert: false },
         );

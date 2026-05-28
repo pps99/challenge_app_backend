@@ -335,6 +335,16 @@ Every endpoint validates inputs with **class-validator** DTOs. The global `Valid
 - `forbidNonWhitelisted: true` — rejects requests with extra fields
 - `transform: true` — auto-converts payloads to DTO instances
 
+### CORS
+
+CORS is enabled globally via `app.enableCors()` in `main.ts`. By default it allows all origins (`*`). Set `CORS_ORIGIN` in `.env` to restrict this to your frontend's URL in production:
+
+```env
+CORS_ORIGIN=https://your-frontend.example.com
+```
+
+The WebSocket gateway independently allows all origins via `@WebSocketGateway({ cors: { origin: '*' } })`.
+
 ### Environment Variables
 
 Secrets are loaded from `.env` (gitignored). A `.env.example` is committed showing all required variables without real values.
@@ -406,6 +416,7 @@ challengeappbackend-backend/
 | `JWT_SECRET` | Secret for signing JWTs | _(required, no default)_ |
 | `JWT_EXPIRES_IN` | JWT expiration time | `1d` |
 | `RABBITMQ_URL` | RabbitMQ AMQP connection URL | `amqp://guest:guest@rabbitmq:5672` |
+| `CORS_ORIGIN` | Allowed frontend origin for CORS | `*` (all origins — restrict in production) |
 
 When running the API **outside Docker** (local dev), replace service names (`mongodb`, `rabbitmq`) with `localhost`.
 

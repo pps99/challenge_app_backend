@@ -53,7 +53,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.emitToUser(data.to, 'typing', { from: socket.data.userId });
     }
 
-    private emitToUser(userId: string, event: string, payload: NotificationPayload) {
+    private emitToUser(userId: string, event: string, payload: NotificationPayload | Record<string, unknown>) {
         const sockets = this.onlineUsers.get(userId);
         if (!sockets) return;
         for (const id of sockets) this.server.to(id).emit(event, payload);
