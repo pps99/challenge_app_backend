@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: challengeappbackend-mongo
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - mongo_data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: challengeappbackend-rabbit
+    restart: unless-stopped
+    ports:
+      - '5672:5672' # AMQP
+      - '15672:15672' # Web UI at http://localhost:15672 (guest/guest)
+
+  api:
+    build: .
+    container_name: challengeappbackend-api
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+volumes:
+  mongo_data:
