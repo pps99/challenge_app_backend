@@ -1,9 +1,9 @@
-import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Profile, ProfileSchema } from './schemas/profile.schema';
-import { ProfileService } from './profile.service';
-import { ProfileController } from './profile.controller';
-import { AuthModule } from '../auth/auth.module';
+import { Module } from "@nestjs/common";
+import { MongooseModule } from "@nestjs/mongoose";
+import { Profile, ProfileSchema } from "./schemas/profile.schema";
+import { ProfileService } from "./profile.service";
+import { ProfileController } from "./profile.controller";
+import { AuthModule } from "../auth/auth.module";
 
 @Module({
   imports: [
@@ -14,4 +14,4 @@ import { AuthModule } from '../auth/auth.module';
   providers: [ProfileService],
   exports: [ProfileService],
 })
-export class ProfileModule { }
+export class ProfileModule {}

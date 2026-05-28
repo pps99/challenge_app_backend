@@ -1,27 +1,27 @@
-import { Body, Controller, Post, HttpCode } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
+import { Body, Controller, Post, HttpCode } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
+import { ApiTags, ApiOperation } from "@nestjs/swagger";
+import { AuthService } from "./auth.service";
+import { RegisterDto } from "./dto/register.dto";
+import { LoginDto } from "./dto/login.dto";
 
-@ApiTags('auth')
+@ApiTags("auth")
 @Controller()
 export class AuthController {
-    constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
-    @Post('register')
-    @Throttle({ default: { limit: 5, ttl: 60000 } })
-    @ApiOperation({ summary: 'Register a new user' })
-    register(@Body() dto: RegisterDto) {
-        return this.authService.register(dto);
-    }
+  @Post("register")
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @ApiOperation({ summary: "Register a new user" })
+  register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto);
+  }
 
-    @Post('login')
-    @Throttle({ default: { limit: 5, ttl: 60000 } })
-    @HttpCode(200)
-    @ApiOperation({ summary: 'Login and receive a JWT' })
-    login(@Body() dto: LoginDto) {
-        return this.authService.login(dto);
-    }
+  @Post("login")
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @HttpCode(200)
+  @ApiOperation({ summary: "Login and receive a JWT" })
+  login(@Body() dto: LoginDto) {
+    return this.authService.login(dto);
+  }
 }

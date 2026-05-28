@@ -153,8 +153,14 @@ Full interactive documentation is available at **http://localhost:3000/docs** vi
 | POST | `/api/createProfile` | Bearer | Create the authenticated user's profile |
 | GET | `/api/getProfile` | Bearer | Retrieve the authenticated user's profile |
 | PUT | `/api/updateProfile` | Bearer | Update the authenticated user's profile |
+| DELETE | `/api/deleteProfile` | Bearer | Delete the authenticated user's profile |
 | POST | `/api/sendMessage` | Bearer | Send a message to another user |
 | GET | `/api/viewMessages` | Bearer | Retrieve message history with another user (paginated) |
+| GET | `/api/conversations` | Bearer | List conversations with last message and unread count |
+| PATCH | `/api/editMessage` | Bearer | Edit one of your own messages |
+| DELETE | `/api/deleteMessage` | Bearer | Soft-delete one of your own messages |
+| PATCH | `/api/markMessageDelivered` | Bearer | Mark a received message as delivered |
+| PATCH | `/api/markConversationRead` | Bearer | Mark all messages from another user as read |
 
 ### Example: Full Flow
 
@@ -214,7 +220,7 @@ socket.emit('typing', { to: '<other-user-id>' });
 
 | Event | Direction | Payload |
 |---|---|---|
-| `message:new` | Server → Client | `{ messageId, senderId, content, createdAt }` |
+| `message:new` | Server → Client | `{ messageId, senderId, receiverId, content, conversationId, createdAt }` |
 | `message:sent` | Server → Client | Confirmation echoed back to sender |
 | `typing` | Client → Server | `{ to: userId }` |
 | `typing` | Server → Client | `{ from: userId }` |
@@ -242,7 +248,7 @@ Tests focus on business logic in the service layer and pure utility functions:
 - ✅ `conversation-id.spec.ts` — Deterministic conversation ID generation
 - ✅ `auth.service.spec.ts` — Register, login, password hashing, JWT signing
 - ✅ `profile.service.spec.ts` — CRUD with auto-enrichment of horoscope/zodiac
-- ✅ `chat.service.spec.ts` — Message persistence and RabbitMQ publishing
+- ✅ `chat.service.spec.ts` — Message persistence, RabbitMQ publishing, conversation list, edits, deletes, and read receipts
 
 Controller tests are intentionally omitted since controllers are thin delegates; the underlying services are tested directly.
 
@@ -258,7 +264,7 @@ Controller tests are intentionally omitted since controllers are thin delegates;
 |---|---|---|
 | `users` | AuthModule | Credentials only; unique indexes on `email` and `username` |
 | `profiles` | ProfileModule | Linked to users via `userId` reference; `interests` embedded as an array |
-| `messages` | ChatModule | Linked to users via `sender`/`receiver`; indexed by `conversationId` + `createdAt` |
+| `messages` | ChatModule | Linked to users via `sender`/`receiver`; indexed by `conversationId` + `createdAt`, unread status, and soft-delete state |
 
 **Embed vs. Reference decisions:**
 
@@ -271,6 +277,7 @@ Controller tests are intentionally omitted since controllers are thin delegates;
 ```typescript
 // Messages: optimized for paginated history per conversation
 MessageSchema.index({ conversationId: 1, createdAt: -1 });
+MessageSchema.index({ receiver: 1, status: 1, isDeleted: 1 });
 
 // Users: prevent duplicate emails/usernames at the DB layer
 { email: { unique: true }, username: { unique: true } }
@@ -300,6 +307,7 @@ Although deployed as a single NestJS app, the codebase is structured for microse
 |---|---|---|
 | Online users tracking | `Map<userId, Set<socketId>>` | O(1) lookup; supports multi-device (one user, multiple sockets) |
 | Conversation identification | Sorted string concatenation | Deterministic and stateless — no DB lookup needed |
+| Conversation summaries | MongoDB aggregation pipeline | Groups by conversation and computes unread counts close to the data |
 | Horoscope ranges | Lookup table (array of tuples) | Avoids long if-else chains; easy to verify against reference data |
 
 ---

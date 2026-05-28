@@ -1,36 +1,36 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppModule } from './app.module';
+import { NestFactory } from "@nestjs/core";
+import { ValidationPipe } from "@nestjs/common";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: process.env.CORS_ORIGIN ?? '*',
+    origin: process.env.CORS_ORIGIN ?? "*",
     credentials: true,
   });
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix("api");
 
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
-    }),);
+    }),
+  );
 
   const config = new DocumentBuilder()
-    .setTitle('challengeappbackend API')
-    .setDescription('Login, Profile, Chat')
-    .setVersion('1.0')
+    .setTitle("challengeappbackend API")
+    .setDescription("Login, Profile, Chat")
+    .setVersion("1.0")
     .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup("docs", app, document);
 
   await app.listen(process.env.PORT ?? 3000);
-
 }
 bootstrap();
