@@ -48,7 +48,7 @@ describe('AuthService', () => {
         expect.objectContaining({
           email: 'john@test.com',
           username: 'john',
-          password: expect.not.stringMatching('password123'), // should be hashed
+          password: expect.not.stringMatching('password123'),
         }),
       );
       expect(result).toEqual({

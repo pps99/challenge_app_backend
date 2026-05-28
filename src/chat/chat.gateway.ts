@@ -5,7 +5,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { Logger, OnModuleInit } from '@nestjs/common';
-import { RabbitMQService } from './rabbitmq/rabbitmq.service';
+import { RabbitMQService, NotificationPayload } from './rabbitmq/rabbitmq.service';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
@@ -53,7 +53,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.emitToUser(data.to, 'typing', { from: socket.data.userId });
     }
 
-    private emitToUser(userId: string, event: string, payload: any) {
+    private emitToUser(userId: string, event: string, payload: NotificationPayload) {
         const sockets = this.onlineUsers.get(userId);
         if (!sockets) return;
         for (const id of sockets) this.server.to(id).emit(event, payload);

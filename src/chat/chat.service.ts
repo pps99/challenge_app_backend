@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Message, MessageDocument, MessageStatus } from './schemas/message.schema';
 import { makeConversationId } from './utils/conversation-id';
-import { RabbitMQService } from './rabbitmq/rabbitmq.service';
+import { RabbitMQService, NotificationPayload } from './rabbitmq/rabbitmq.service';
 
 @Injectable()
 export class ChatService {
@@ -22,15 +22,16 @@ export class ChatService {
             status: MessageStatus.SENT,
         });
 
-        await this.rabbit.publishNotification({
+        const notification: NotificationPayload = {
             type: 'NEW_MESSAGE',
             messageId: message._id.toString(),
             senderId,
             receiverId,
             content,
             conversationId,
-            createdAt: message['createdAt'],
-        });
+            createdAt: message.createdAt,
+        };
+        await this.rabbit.publishNotification(notification);
 
         return message;
     }

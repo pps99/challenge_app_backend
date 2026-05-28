@@ -5,6 +5,16 @@ import { ConfirmChannel } from 'amqplib';
 
 export const NOTIFICATION_QUEUE = 'message.notifications';
 
+export interface NotificationPayload {
+    type: 'NEW_MESSAGE';
+    messageId: string;
+    senderId: string;
+    receiverId: string;
+    content: string;
+    conversationId: string;
+    createdAt: Date;
+}
+
 @Injectable()
 export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger(RabbitMQService.name);
@@ -41,14 +51,14 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
         this.resolveReady();
     }
 
-    async publishNotification(payload: any) {
-        await this.ready; // ⬅️ wait until init is done
+    async publishNotification(payload: NotificationPayload) {
+        await this.ready;
         return this.channelWrapper.sendToQueue(NOTIFICATION_QUEUE, payload, {
             persistent: true,
         });
     }
 
-    async consumeNotifications(handler: (msg: any) => Promise<void>) {
+    async consumeNotifications(handler: (msg: NotificationPayload) => Promise<void>) {
         await this.ready;
         await this.channelWrapper.addSetup(async (channel: ConfirmChannel) => {
             await channel.consume(NOTIFICATION_QUEUE, async (msg) => {

@@ -8,7 +8,7 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Profile.name, schema: ProfileSchema }]),
-    AuthModule, // needed for JwtAuthGuard
+    AuthModule,
   ],
   controllers: [ProfileController],
   providers: [ProfileService],

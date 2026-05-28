@@ -1,4 +1,3 @@
-// src/chat/schemas/message.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 
@@ -26,6 +25,9 @@ export class Message {
 
     @Prop({ index: true })
     conversationId: string; // deterministic: sorted("userA_userB")
+
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);
